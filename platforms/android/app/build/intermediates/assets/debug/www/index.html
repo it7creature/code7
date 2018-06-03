@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+
+	<!-- 
+		js import
+	-->
+	<script src="cordova.js"></script>
+	<script src="./js/jquery.js"></script>
+	<script src="./js/jquery-ui.js"></script>
+	<script src="./js/bootstrap.js"></script>
+	<script src="./js/common.js"></script>
+    
+	<!--
+		css import
+	-->	
+	<link rel="stylesheet" href="./css/bootstrap-theme.css">
+	<link rel="stylesheet" href="./css/bootstrap.css">  
+    <title>code7</title>
+</head>
+
+<body class="bs-docs-home" id="body">
+	<input type='hidden' id='device'>
+	<input type='hidden' id='version'>
+	<div style='text-align:center;margin:20% 10% 10% 10%'>
+		<code><span style='font-weight:bold;font-size:30px;'>Code7</span></code>
+		<form class="form-horizontal" style="padding-top:5%;">
+		  <div class="form-group" style='text-align:left;'>
+			<label for="inputEmail3" class="col-sm-2 control-label">ID(Email)</label>
+			<div class="col-sm-10">
+			  <input type="email" class="form-control" id="login_id" placeholder="Email">
+			</div>
+		  </div>
+		  <div class="form-group" style='text-align:left;'>
+			<label for="inputPassword3" class="col-sm-2 control-label">비밀번호</label>
+			<div class="col-sm-10">
+			  <input type="password" class="form-control" id="login_pwd" placeholder="Password">
+			</div>
+		  </div>
+		  <div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10" >
+			  <div class="checkbox" style='text-align:center;'>
+				<label>
+				  <input type="checkbox" id="login_id_checkbox"> ID 저장
+				</label>
+				<label>
+				  <input type="checkbox" id="login_pwd_checkbox"> 비밀번호 저장
+				</label>&nbsp&nbsp
+			  </div>
+			</div>
+		  </div>
+		  <hr style='width:50%;'>
+		  <div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+			  <button type="button" class="btn btn-info" onclick="javascript:fnc_login();">로그인</button>
+			  <button type="button" class="btn btn-warning" onclick="javascript:fnc_requestUser();">멤버등록</button>&nbsp&nbsp
+			</div>
+		  </div>
+		  <br>
+		  <div>
+			<code><b>본 어플은 SSL통신을 지원합니다</b></code>
+		  </div>
+		</form>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h4 class="modal-title" id="myModalLabel" style='font-weight:bold;'>멤버등록</h4>
+		  </div>
+		  <div class="modal-body" id="id_modalBody" style="width:100%;">		
+			<form>
+				<div class="form-group">
+				  <label for="disabledTextInput">ID(Email)</label>
+				  <input type="email" id="request_id" class="form-control request_form" placeholder="e메일 형식">
+				</div>
+				<div class="form-group">
+				  <label for="disabledSelect">멤버</label>
+				  <select id="request_member" class="form-control request_form">
+				  </select>
+				</div>
+				
+				<div class="form-group">
+				  <label for="disabledTextInput">비밀번호</label>
+				  <input type="password" id="request_pwd1" class="form-control request_form" placeholder="9자리 이상">
+				</div>
+				
+				<div class="form-group">
+				  <label for="disabledTextInput">비밀번호 확인</label>
+				  <input type="password" id="request_pwd2" class="form-control request_form" placeholder="9자리 이상">
+				</div>
+			</form>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-info" onclick="javascript:fnc_requestUserSave();">가입신청</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+</body>
+</html>
+
+<script>
+	//onload
+	$(document).ready( function() {
+		//localstorage 확인
+		if(localStorage.getItem("login_id"))	{
+			$("#login_id").val(localStorage.getItem("login_id"));
+			$("#login_id_checkbox").attr('checked', true);
+		}
+		if(localStorage.getItem("login_pwd"))	{
+			$("#login_pwd").val(localStorage.getItem("login_pwd"));
+			$("#login_pwd_checkbox").attr('checked', true);
+		}
+		document.addEventListener("deviceready", onDeviceReady, false);
+	});	
+
+	function onDeviceReady() {						
+			$("#version").val(device.version);
+			FCMPlugin.getToken(function(token){
+                $("#device").val(token);
+            });
+
+			 FCMPlugin.onNotification(function(data){
+                alert(data);
+            });
+
+			document.addEventListener("backbutton", onBackKey, false);
+	}
+	//
+	function onBackKey() {
+		navigator.notification.confirm('', onBackKeyResult, '어플을 종료하시겠습니까?', '아니, 응');
+	}
+	//
+	function onBackKeyResult(index) {
+		if(index == 2) {
+		  navigator.app.exitApp();
+		}
+	}
+
+
+	//로그인
+	function fnc_login()	{
+		if($("#login_id").val()	==	"")	{
+			fnc_showAlert("ID를 입력하세요", "값 체크 실패", "확인");
+			$("#login_id").focus();
+			return;
+		}
+		if($("#login_pwd").val()	==	"")	{
+			fnc_showAlert("비밀번호를 입력하세요", "값 체크 실패", "확인");
+			$("#login_pwd").focus();
+			return;
+		}
+
+		$.ajax({
+			url : code7_url+"/login",
+			dataType : 'json',
+			type : "POST",  
+			data : { 
+				"id" : $("#login_id").val()
+				,"pwd" : $("#login_pwd").val()
+				,"token" : $("#device").val()
+			},
+			error: function(xhr,status,error){
+				  alert("code:"+xhr.status);
+			  },
+			success : function(data, status) {
+				if(data.result == "1")	{
+					var response = data.session;
+					//세션저장
+					sessionStorage.setItem("user_id",response[0].user_id);
+					sessionStorage.setItem("name",response[0].name);
+					sessionStorage.setItem("uuid",response[0].uuid);
+					sessionStorage.setItem("user_level",response[0].user_level);
+					sessionStorage.setItem("session_time",new Date());
+					//id localstorage 저장
+					if($("#login_id_checkbox").is(":checked"))	{
+						localStorage.setItem("login_id", $("#login_id").val());
+					}
+					else	{
+						localStorage.removeItem('login_id');
+					}
+					//pwd localstorage 저장
+					if($("#login_pwd_checkbox").is(":checked"))	{
+						localStorage.setItem("login_pwd", $("#login_pwd").val());
+					}
+					else	{						
+						localStorage.removeItem('login_pwd');
+					}
+					fnc_showAlert(response[0].name + "님 방가방가용~", "로그인 성공", "확인");
+					$(location).attr('href', './code7_main.html');
+				}					
+				else	{
+					fnc_showAlert("id나 비밀번호 확인 ㄱㄱ", "로그인 실패", "확인");
+				}					
+			}
+		});	
+	}
+
+	//회원가입 화면 띄우기
+	function fnc_requestUser()	{
+		//매칭 가능한 멤버 가져오긔
+		$.ajax({
+			url : code7_url+"/memberList",
+			dataType : 'json',
+			type : "POST",  
+			data : { "request_memeberList" : "Y", "del_yn" : "N" },
+			error: function(xhr,status,error){
+				  alert("code:"+xhr.status);
+			  },
+			success : function(data, status) {
+				var response = data.list;
+
+				$('#request_member').html("");
+				for(var i=0; i<response.length; ++i)
+				{
+					var option = "<option value='"+response[i].uuid+"'>"+response[i].name+"("+response[i].cname+")</option>";
+					$('#request_member').append(option);
+				}
+				$('#myModal').modal('show');
+			}
+		});		
+	}
+
+	//회원가입
+	function fnc_requestUserSave()	{
+		if($("#request_id").val()	==	"")	{
+			fnc_showAlert("ID를 입력하세요", "값 체크 실패", "확인");
+			$("#request_id").focus();
+			return;
+		}
+		if($("select[id=request_member]").val()	==	"")	{
+			fnc_showAlert("멤버를 입력하세요", "값 체크 실패", "확인");
+			$("select[id=request_member]").focus();
+			return;
+		}
+		if($("#request_pwd1").val()	==	"")	{
+			fnc_showAlert("비밀번호를 입력하세요", "값 체크 실패", "확인");
+			$("#request_pwd1").focus();
+			return;
+		}
+		if($("#request_pwd2").val()	==	"")	{
+			fnc_showAlert("비밀번호 확인을 입력하세요", "값 체크 실패", "확인");
+			$("#request_pwd2").focus();
+			return;
+		}
+		if($("#request_pwd1").val() != $("#request_pwd2").val())	{
+			fnc_showAlert("입력한 비밀번호가 다릅니다", "값 체크 실패", "확인");
+			$("#request_pwd2").focus();
+			return;
+		}
+
+		if(confirm("위 정보로 가입신청 하시겠습니까?"))	{
+			$.ajax({
+				url : code7_url+"/requestUserSave",
+				dataType : 'json',
+				type : "POST",  
+				data : { 
+					"request_id" : $("#request_id").val()
+					,"request_member" : $("select[id=request_member]").val()
+					,"request_pwd1" : $("#request_pwd1").val()
+					,"device" : $("#device").val()
+					,"version" : $("#version").val()
+				},
+				error: function(xhr,status,error){
+					  alert("code:"+xhr.status);
+				  },
+				success : function(data, status) {
+					if(data.result == "1")	{
+						$(".request_form").val("");
+						$(".request_form").html("");
+						fnc_showAlert("신청완료처리되면 알려드릴게유~\n그 후에 로긴 ㄱㄱ", "신청완료", "확인");
+						$('#myModal').modal('hide');
+					}					
+					else	{
+						fnc_showAlert("토니에게 문의~", "신청실패", "확인");
+					}					
+				}
+			});		
+		}
+	}	
+</script>

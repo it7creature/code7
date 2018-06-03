@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script>
+window.onload = function () {
+	var temp_stats = parent.document.getElementById("member_year_stats").value;
+	var temp_stats_array = temp_stats.split(",");
+
+	//값이 없다면 pass
+	if(temp_stats_array.length == 0)	{
+		return;
+	}
+	else	{
+		var temp_w = [];
+		var temp_d = [];
+		var temp_l = [];		
+		
+		//Better to construct options first and then pass it as a parameter
+		var options = {
+			animationEnabled: true,
+			theme: "light1", //"light2", "dark1", "dark2"
+			title:{
+				text: ""             
+			},
+			axisY:{
+				interval: 10,
+				suffix: "%"
+			},
+			toolTip:{
+				shared: true
+			},
+			data:[{
+				type: "stackedBar100",
+				toolTipContent: "{label}<br><b>{name}:</b> {y} (#percent%)",
+				showInLegend: true, 
+				name: "승",
+				dataPoints: temp_w
+				//dataPoints: [ { y:80, lable:'2017'}, {y:44, lable:'2018'} ]
+			},
+			{
+				type: "stackedBar100",
+				toolTipContent: "<b>{name}:</b> {y} (#percent%)",
+				showInLegend: true, 
+				name: "무",
+				dataPoints: temp_d
+				//dataPoints : [ { y:10, lable:'2017'}, {y:15, lable:'2018'} ]
+			}, 
+			{
+				type: "stackedBar100",
+				toolTipContent: "<b>{name}:</b> {y} (#percent%)",
+				showInLegend: true, 
+				name: "패",
+				dataPoints: temp_l
+				//dataPoints : [ { y:30, lable:'2017'}, {y:20, lable:'2018'} ]
+			}]
+		};		
+		
+		//동적 값 그리기
+		for(var i=0; i<temp_stats_array.length; ++i)	{
+			var temp_value_array = temp_stats_array[i].split(".");
+			temp_w.push({
+				label: temp_value_array[0],
+				y: +temp_value_array[1]
+			});
+			temp_d.push({
+				label: temp_value_array[0],
+				y: +temp_value_array[2]
+			});
+			temp_l.push({
+				label: temp_value_array[0],
+				y: +temp_value_array[3]
+			});
+		}
+
+		$("#chartContainer").CanvasJSChart(options);
+	}
+}
+</script>
+</head>
+<body>
+<div id="chartContainer" style="height: 190px;width:100%;"></div>
+<script src="./js/jquery.js"></script>
+<script type="text/javascript" src="./js/jquery.canvasjs.min.js"></script>
+</body>
+</html>

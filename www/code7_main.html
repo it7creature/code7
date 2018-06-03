@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+
+	<!-- 
+		js import
+	-->
+	<script src="cordova.js"></script>
+	<script src="./js/jquery.js"></script>
+	<script src="./js/jquery-ui.js"></script>
+	<script src="./js/bootstrap.js"></script>
+	<script src="./js/swiper.min.js"></script>
+    
+	<!--
+		css import
+	-->	
+	<link rel="stylesheet" href="./css/bootstrap-theme.css">
+	<link rel="stylesheet" href="./css/swiper.min.css">
+	<link rel="stylesheet" href="./css/bootstrap.css">
+	<link rel="stylesheet" href="./css/datepicker.css">	
+
+    <style>
+    .swiper-container {
+        width: 100%;
+        height: 100%;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 14px;
+        background: #fff;
+		width: 100%;
+
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-box-pack: top;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+    }
+	.title-menu{position:relative;padding:45px 15px 15px;margin:0 -15px 15px;border-color:#e5e5e5 #eee #eee;border-style:solid;border-width:1px 0;-webkit-box-shadow:inset 0 3px 6px rgba(0,0,0,.05);box-shadow:inset 0 3px 6px rgba(0,0,0,.05)}
+	.title-menu:after{position:absolute;top:15px;left:15px;font-size:12px;font-weight:700;color:#959595;text-transform:uppercase;letter-spacing:1px;content:"Menu"}
+	
+	.tbl {
+		display: flex;
+		flex-flow: column;
+	}
+	.tbl thead {
+		/* head takes the height it requires, 
+		and it's not scaled when table is resized */
+		flex: 0 0 auto;
+	}
+	.tbl tbody {
+		/* body takes all the remaining available space */.
+		flex: 1 1 auto;
+		height:400px;
+		overflow-y: scroll;		
+	}
+
+	.tbl tbody tr {
+		width:100%;
+		height:40px;
+	}
+	.tbl thead, .tbl tbody tr{
+		display: table;
+		table-layout: fixed;
+	}
+	.mn	{
+		display: none;
+	}
+
+	#loading {
+		height: 100%;
+		left: 0px;
+		position: fixed;
+		_position:absolute;
+		top: 0px;
+		width: 100%;
+		filter:alpha(opacity=50);
+		-moz-opacity:0.5;
+		opacity : 0.5;
+	}	
+
+	.loading {
+		background-color: white;
+		z-index: 199;
+	}	
+
+	#loading_img{
+		position:absolute; 
+		top:50%;
+		left:50%;
+		height:35px;
+		margin-top:-75px;	//	이미지크기
+		margin-left:-75px;	//	이미지크기
+		z-index: 200;
+	}
+    </style>
+    <title>code7</title>
+</head>
+
+<body class="bs-docs-home" id="body">
+	<div id="contentDiv" style="padding:2% 5% 5% 5%;margin-bottom:-10%;position:relative;">
+		<div class="title-menu" data-example-id="btn-variants" style="text-align:center;margin-top:-3%;position:fixed;z-index:2;background-color:white;color:#f1f1f1;width:100%;">
+			<button type="button" class="btn btn-primary" onclick="javascript:fnc_goMn('1');"><b>About</b></button>
+			<button type="button" class="btn btn-primary" onclick="javascript:fnc_goMn('3');"><b>Player</b></button>
+			<button type="button" class="btn btn-primary" onclick="javascript:fnc_goMn('4');"><b>Record</b></button>
+			<button type="button" class="btn btn-primary" onclick="javascript:fnc_goMn('5');"><b>Match</b></button>
+			<button type="button" class="btn btn-danger" onclick="javascript:fnc_goMn('0');"><b>Logout</b></button>			
+		</div>
+		<!--
+			body start
+		-->
+		<div style='padding-top:30%;'>
+			<div id="mn_1" class="title mn">
+				<h2><span style="color:green;">FC</span>상길</h2>
+				<div class="separator-container">
+					<div class="separator line-separator">∎</div>
+				</div>
+				<div class="member add-animation animation-2" style="text-align:center;">
+					<img class="img-circle" src="./img/mn_1.jpg" style="width:40%;height:30%;"/>
+					<br><br>
+					<p class="large">
+						Team FC상길은 한국국방연구원(KIDA) 연구원을 중심으로 구성된 축구 및 풋살 팀입니다.
+					</p>
+					<hr style='width:70%;'>
+					<h2>STADIUM</h2>
+					<div class="separator-container">
+						<div class="separator line-separator">∎</div>
+					</div>
+					<div class="member add-animation animation-2" style="text-align:center;">
+						<img class="img-circle" src="./img/mn_2.jpg" style="width:40%;height:30%;"/>
+						<br><br>
+						<div class="description">
+							<p class="small-text" id="id_stadium">
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="mn_3" class="title mn">
+				<!--
+				<h2>PLAYER</h2>
+				<div class="separator-container">
+					<div class="separator line-separator">∎</div>
+				</div>
+				-->
+				<div style="text-align:center;">
+					<img class="img-circle" src="./img/mn_3.jpg" style="width:40%;height:30%;"/>
+					<br><br>
+					<div class="description">
+						<p class="small-text" style='width:100%;text-align:center;'>							
+							<table class="table table-striped">
+							  <thead>
+								<tr>
+								  <th style="width:5%;">#</th>
+								  <th style="width:40%;">nm</th>
+								  <th style="width:10%;">t</th>
+								  <th style="width:10%;">w</th>
+								  <th style="width:10%;">d</th>
+								  <th style="width:10%;">l</th>
+								  <th style="width:15%;">wR</th>
+								</tr>
+							  </thead>
+							  <tbody id="id_memberList" style="border:0px;">											
+							  </tbody>
+							</table>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div id="mn_4" class="title mn">
+				<div style="text-align:right;">
+					<select id="recordSelectId" class="form-control" style="width:30%;height:32px;" onchange="javascript:fnc_searchMatchList();">
+					Record
+					</select>
+				</div>
+				
+				<!--
+				<h2>RECORD</h2>
+				<div class="separator-container">
+					<div class="separator line-separator">∎</div>
+				</div>
+				-->
+				<div class="swiper-container" id="Record">
+					<div class="swiper-wrapper">
+						<div class="swiper-slide">				
+							<div class="title" id="animationTest" style="width:100%;">
+								<h3 class="big-text">Match</h3>
+								<table class="table table-striped tbl">
+								  <thead>
+									<tr>
+									  <th style="width:10%;">#</th>
+									  <th style="width:20%;">day</th>
+									  <th style="width:35%;">team A</th>
+									  <th style="width:35%;">team B</th>
+									</tr>
+								  </thead>
+								  <tbody id="id_matchRecord">											
+								  </tbody>
+								</table>
+							</div>
+						</div>
+						<div class="swiper-slide">
+							<div class="title" id="animationTest" style="width:100%;">
+								<h3 class="big-text">Player</h3>
+								<table class="table table-striped tbl">
+								  <thead>
+									<tr>
+									  <th style="width:5%;">#</th>
+									  <th style="width:20%;">nm</th>
+									  <th id="id_playerRecordAppr" style="width:25%;">ap</th>
+									  <th style="width:10%;">w</th>
+									  <th style="width:10%;">d</th>
+									  <th style="width:10%;">l</th>
+									  <th style="width:10%;">wR</th>
+									  <th style="width:10%;">cR</th>
+									  <!--<th style="width:10%;">s</th>-->
+									</tr>
+								  </thead>
+								  <tbody id="id_playerRecord">
+								  </tbody>
+								</table>
+							</div>			
+						</div>
+					</div>
+					<div class="swiper-pagination"></div>
+				</div>
+			</div>
+			<div id="mn_5" class="title mn">
+				<!--
+				<h2>MATCH</h2>
+				<div class="separator-container">
+					<div class="separator line-separator">∎</div>
+				</div>
+				-->
+				<table class="table">
+					<tbody>
+						<tr style="vertical-align:middle;">
+						  <th scope="row" style="width:25%;text-align:center;">일자</th>
+						  <td style="width:75%;">
+							<input type="text" class="input-form" size="4" id="matchDay">
+						  </td>
+						</tr>
+						<tr style="vertical-align:middle;">
+						  <th scope="row"  style="width:25%;text-align:center;">참여멤버</th>
+						  <td id="mn_5_member" style="text-align:left;width:75%;">
+						  </td>
+						</tr>
+					  </tbody>
+				</table>
+				<table class="table" style="height:auto;">
+				  <thead>
+					<tr>
+					  <th style="width:20%;">#</th>
+					  <th style="width:40%;">team A</th>
+					  <th style="width:40%;">team B</th>
+					</tr>
+				  </thead>				  
+					<tbody>
+						<tr class="team_table_tr" style="vertical-align:middle;">
+						  <th scope="row" style="width:20%;text-align:center;">팀 멤버</th>
+						  <td style="width:40%;"  id="team_a_member" class="team_member">							
+						  </td>
+						  <td style="width:40%;"  id="team_b_member" class="team_member">
+						  </td>
+						</tr>
+						<tr class="team_table_tr" style="vertical-align:middle;">
+						  <th scope="row" style="width:20%;text-align:center;">팀 확정</th>
+						  <td style="width:80%;" colspan="2" id="team_fix" class="team_member">
+						  </td>
+						</tr>
+						<tr class="team_table_tr" style="vertical-align:middle;">
+						  <th scope="row" style="width:20%;text-align:center;">팀 통계</th>
+						  <td style="width:40%;text-align:center;padding-left:5px;">
+								<span id="team_a_wrate" class="team_member team_stats"></span>(승률)<br>
+								<span id="team_a_crate" class="team_member team_stats"></span>(찬스율)<br>
+								<span id="team_a_score" class="team_member team_stats"></span>(득점)
+						  </td>
+						  <td style="width:40%;text-align:center;padding-left:5px;">
+								<span id="team_b_wrate" class="team_member team_stats"></span>(승률)<br>
+								<span id="team_b_crate" class="team_member team_stats"></span>(찬스율)<br>
+								<span id="team_b_score" class="team_member team_stats"></span>(득점)
+						  </td>
+						</tr>
+						<tr class="team_table_tr" style="vertical-align:middle;">
+						  <th scope="row" style="width:20%;text-align:center;">편성방법</th>
+						  <td style="width:80%;" colspan="2" id="team_make" class="team_member">
+						  </td>
+						</tr>
+				  </tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<footer class="footer footer-color-black">
+			<div class="copyright">
+				&copy;
+				2017.06.11 code7
+			</div>
+	</footer>
+
+	<input type="hidden" id="mn_5_member_cnt" name="mn_5_member_cnt" class="mn_5_value" value="0">
+	<input type="hidden" id="mn_5_member_info" name="mn_5_member_info" class="mn_5_value" value="">
+	<input type="hidden" id="mn_5_member_tot_cnt" name="mn_5_member_tot_cnt" class="mn_5_value" value="0">
+	<input type="hidden" id="mn_5_member_team_a_cnt" name="mn_5_member_team_a_cnt" class="mn_5_value" value="0">
+	<input type="hidden" id="mn_5_member_team_b_cnt" name="mn_5_member_team_b_cnt" class="mn_5_value" value="0">
+	<input type="hidden" id="mn_5_member_team_a" name="mn_5_member_team_a" class="mn_5_value" value="">
+	<input type="hidden" id="mn_5_member_team_b" name="mn_5_member_team_b" class="mn_5_value" value="">
+	<input type="hidden" id="mn_5_member_team_a_score" name="mn_5_member_team_a_score" class="mn_5_value" value="0">
+	<input type="hidden" id="mn_5_member_team_b_score" name="mn_5_member_team_b_score" class="mn_5_value" value="0">
+	<input type="hidden" id="member_year_stats" name="member_year_stats" value="">
+
+	<!-- Modal -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h4 class="modal-title" id="myModalLabel"></h4>
+		  </div>
+		  <div class="modal-body" id="id_modalBody">
+			<code>연도별 통계</code><br>
+			<div id='chart'><iframe id='chart_iframe' style='width:100%;height:200px;'></iframe></div>
+			<br><code>최근 10경기 현황</code><br><div id='div_recent_win_yn' class='div_member_popup'></div>
+			<br><code>최고의 파트너 top5</code><br><div id='div_get_with_best_member_stats' class='div_member_popup'></div>
+			<br><code>최악의 파트너 top5</code><br><div id='div_get_with_worst_member_stats' class='div_member_popup'></div>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
+  </body>
+</html>
+
+<script src="./js/common.js"></script>
+<script src="./js/mn_1.js"></script>
+<script src="./js/mn_2.js"></script>
+<script src="./js/mn_3.js"></script>
+<script src="./js/mn_4.js"></script>
+<script src="./js/mn_5.js"></script>
+
+<script>	
+	//onload
+	$(document).ready( function() {
+		var loading = $('<div id="loading" class="loading"></div><img id="loading_img" alt="loading" src="./img/load_img.gif" />').appendTo(document.body).hide();
+		$(window)
+			.ajaxStart(function(){
+			loading.show();
+		})
+		.ajaxStop(function(){
+			loading.hide();
+		});
+
+		fnc_goMn('1');
+		$(".object_hide").hide();
+		$( "#matchDay" ).datepicker({ dateFormat: "yymmdd" });
+		document.addEventListener("deviceready", onDeviceReady, false);
+	});	
+
+	function onDeviceReady() {
+			document.addEventListener("backbutton", onBackKey, false);
+	}	
+	//
+	function onBackKey() {
+		navigator.notification.confirm('', onBackKeyResult, '로그아웃 하시겠습니까?', '아니, 응');
+	}
+	//
+	function onBackKeyResult(index) {
+		if(index == 2) {
+			sessionStorage.clear();
+			$(location).attr('href', './index.html');		
+			return false;
+		}
+	}
+</script>
